@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+
+# Kotlin
+*.class
+
+# Android
+local.properties
+
+# iOS
+*.xcworkspace
+*.xcuserdata
+Pods/
+DerivedData/
+
+# macOS
+.DS_Store
