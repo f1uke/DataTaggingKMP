@@ -6,12 +6,6 @@ package com.finnomena.datatagging.platform
 expect fun getPlatformName(): String
 
 /**
- * Generate user agent string for analytics
- * Format: {platform}-nter-app/{appVersion} ({bundleId}; build:{buildNumber}; {osName} {osVersion})
- */
-expect fun getUserAgent(): String
-
-/**
  * Generate a time-based UUID (similar to UUID v1)
  * Returns a UUID string that contains timestamp information
  */

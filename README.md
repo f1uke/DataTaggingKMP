@@ -137,18 +137,20 @@ class DataTaggingManager {
 
     private init() {
         let storage = IosDataTaggingStorage()
+        let userAgent = "YourApp/1.0 (iOS)"
 
         // Choose environment
         #if DEBUG
-        let config = DataTaggingConfig.Companion().development()
-        #else
-        let config = DataTaggingConfig.Companion().production()
-        #endif
-
-        self.kmpManager = DataTaggingFactory.shared.create(
-            config: config,
-            storage: storage
+        self.kmpManager = DataTaggingFactory.shared.createDevelopment(
+            storage: storage,
+            userAgent: userAgent
         )
+        #else
+        self.kmpManager = DataTaggingFactory.shared.createProduction(
+            storage: storage,
+            userAgent: userAgent
+        )
+        #endif
     }
 
     func logEvent(name: String, location: String, path: String, params: [String: String]?) {
@@ -241,13 +243,13 @@ class AnalyticsManager(context: Context) {
 
     init {
         val storage = AndroidDataTaggingStorage(context)
-        val config = if (BuildConfig.DEBUG) {
-            DataTaggingConfig.development()
-        } else {
-            DataTaggingConfig.production()
-        }
+        val userAgent = "YourApp/1.0 (Android)"
 
-        manager = DataTaggingFactory.create(config, storage)
+        manager = if (BuildConfig.DEBUG) {
+            DataTaggingFactory.createDevelopment(storage, userAgent)
+        } else {
+            DataTaggingFactory.createProduction(storage, userAgent)
+        }
     }
 
     fun logEvent(name: String, location: String, path: String, params: Map<String, String>?) {
@@ -276,14 +278,21 @@ Configuration for analytics endpoints.
 ```kotlin
 data class DataTaggingConfig(
     val baseUrl: String,
+    val userAgent: String,
     val trackingId: String = "UA-FINNO",
     val sessionTimeoutMinutes: Int = 30
 )
 
-// Pre-configured environments
-DataTaggingConfig.development()  // https://gtm-int.finnomena.com/mpua
-DataTaggingConfig.uat()          // https://gtm-uat.finnomena.com/mpua
-DataTaggingConfig.production()   // https://gtm.finnomena.com/mpua
+// Pre-configured environment URLs (use with DataTaggingFactory convenience methods)
+DataTaggingFactory.createDevelopment(storage, userAgent)  // https://gtm-int.finnomena.com/mpua
+DataTaggingFactory.createUAT(storage, userAgent)          // https://gtm-uat.finnomena.com/mpua
+DataTaggingFactory.createProduction(storage, userAgent)   // https://gtm.finnomena.com/mpua
+
+// Or create custom config
+val config = DataTaggingConfig(
+    baseUrl = "https://gtm.finnomena.com/mpua",
+    userAgent = "YourApp/1.0 (iOS)"
+)
 ```
 
 ### AnalyticsEvent
@@ -344,7 +353,7 @@ Events are sent to GTM with the following parameters:
 | `u.f` | Client ID |
 | `u.e` | Braze ID |
 | `u.i` | User ID |
-| `p` | JSON-encoded custom parameters |
+| `p` | JSON-encoded custom parameters (includes `user_agent` and optional `ex_id`) |
 | `ph` | Path |
 | `et` | Event type ("click", "page") |
 | `d` | Device ("ios" or "android") |

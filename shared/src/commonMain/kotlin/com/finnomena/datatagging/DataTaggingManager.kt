@@ -7,7 +7,6 @@ import com.finnomena.datatagging.platform.currentTimeMillis
 import com.finnomena.datatagging.platform.generateTimeBasedUUID
 import com.finnomena.datatagging.platform.getPlatformName
 import com.finnomena.datatagging.platform.getUUIDTimestamp
-import com.finnomena.datatagging.platform.getUserAgent
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -99,7 +98,7 @@ class DataTaggingManager(
 
             // Build additional params with user agent and exId
             val actualParams = params?.toMutableMap() ?: mutableMapOf()
-            actualParams["user_agent"] = getUserAgent()
+            actualParams["user_agent"] = config.userAgent
             exId?.let { actualParams["ex_id"] = it }
 
             val paramsJson = json.encodeToString(actualParams)
