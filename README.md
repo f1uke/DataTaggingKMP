@@ -353,11 +353,10 @@ Events are sent to GTM with the following parameters:
 | `u.f` | Client ID |
 | `u.e` | Braze ID |
 | `u.i` | User ID |
-| `p` | JSON-encoded custom parameters |
+| `p` | JSON-encoded custom parameters (includes `user_agent` and optional `ex_id`) |
 | `ph` | Path |
 | `et` | Event type ("click", "page") |
 | `d` | Device ("ios" or "android") |
-| `user_agent` | User agent string provided in configuration |
 
 ## Development
 
