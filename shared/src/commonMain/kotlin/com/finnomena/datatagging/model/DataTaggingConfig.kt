@@ -10,20 +10,9 @@ data class DataTaggingConfig(
     val sessionTimeoutMinutes: Int = 30
 ) {
     companion object {
-        // Pre-configured environments
-        fun development(userAgent: String) = DataTaggingConfig(
-            baseUrl = "https://gtm-int.finnomena.com/mpua",
-            userAgent = userAgent
-        )
-
-        fun uat(userAgent: String) = DataTaggingConfig(
-            baseUrl = "https://gtm-uat.finnomena.com/mpua",
-            userAgent = userAgent
-        )
-
-        fun production(userAgent: String) = DataTaggingConfig(
-            baseUrl = "https://gtm.finnomena.com/mpua",
-            userAgent = userAgent
-        )
+        // Pre-configured environment base URLs
+        const val DEV_BASE_URL = "https://gtm-int.finnomena.com/mpua"
+        const val UAT_BASE_URL = "https://gtm-uat.finnomena.com/mpua"
+        const val PROD_BASE_URL = "https://gtm.finnomena.com/mpua"
     }
 }
