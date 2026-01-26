@@ -5,15 +5,6 @@ import java.util.UUID
 
 actual fun getPlatformName(): String = "android"
 
-actual fun getUserAgent(): String {
-    // Note: For full user agent, the Android app should provide BuildConfig values
-    val osVersion = "${Build.VERSION.SDK_INT}"
-    val osName = "Android ${Build.VERSION.RELEASE}"
-    val device = "${Build.MANUFACTURER} ${Build.MODEL}"
-
-    return "android-nter-app/1.0.0 ($device; $osName API $osVersion)"
-}
-
 actual fun generateTimeBasedUUID(): String {
     // Generate a pseudo time-based UUID
     // For proper UUID v1 on Android, consider using a dedicated library

@@ -8,18 +8,6 @@ import platform.Foundation.timeIntervalSince1970
 
 actual fun getPlatformName(): String = "ios"
 
-actual fun getUserAgent(): String {
-    val info = NSBundle.mainBundle.infoDictionary
-    val bundleId = info?.get("CFBundleIdentifier") as? String ?: "Unknown"
-    val appVersion = info?.get("CFBundleShortVersionString") as? String ?: "Unknown"
-    val buildNumber = info?.get("CFBundleVersion") as? String ?: "Unknown"
-
-    val osVersion = NSProcessInfo.processInfo.operatingSystemVersionString
-    val osName = "iOS"
-
-    return "ios-nter-app/$appVersion ($bundleId; build:$buildNumber; $osName $osVersion)"
-}
-
 actual fun generateTimeBasedUUID(): String {
     // Generate a pseudo time-based UUID by encoding timestamp into UUID
     // Format: timestamp_hex (12 chars) + random (rest of UUID)

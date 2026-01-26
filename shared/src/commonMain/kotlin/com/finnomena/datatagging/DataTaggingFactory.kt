@@ -26,21 +26,21 @@ object DataTaggingFactory {
     /**
      * Create a DataTaggingManager for development environment
      */
-    fun createDevelopment(storage: DataTaggingStorage): DataTaggingManager {
-        return create(DataTaggingConfig.development(), storage)
+    fun createDevelopment(storage: DataTaggingStorage, userAgent: String): DataTaggingManager {
+        return create(DataTaggingConfig.development(userAgent), storage)
     }
 
     /**
      * Create a DataTaggingManager for UAT environment
      */
-    fun createUAT(storage: DataTaggingStorage): DataTaggingManager {
-        return create(DataTaggingConfig.uat(), storage)
+    fun createUAT(storage: DataTaggingStorage, userAgent: String): DataTaggingManager {
+        return create(DataTaggingConfig.uat(userAgent), storage)
     }
 
     /**
      * Create a DataTaggingManager for production environment
      */
-    fun createProduction(storage: DataTaggingStorage): DataTaggingManager {
-        return create(DataTaggingConfig.production(), storage)
+    fun createProduction(storage: DataTaggingStorage, userAgent: String): DataTaggingManager {
+        return create(DataTaggingConfig.production(userAgent), storage)
     }
 }
