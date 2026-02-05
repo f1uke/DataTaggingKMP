@@ -75,18 +75,22 @@ afterEvaluate {
 }
 
 // XCFramework generation task
+// Note: iosX64 is excluded from XCFramework as it conflicts with iosSimulatorArm64
+// Apple Silicon Macs can run arm64 simulators natively
 tasks.register("assembleXCFramework") {
     dependsOn(
-        "linkDebugFrameworkIosArm64",
-        "linkDebugFrameworkIosX64",
-        "linkDebugFrameworkIosSimulatorArm64",
         "linkReleaseFrameworkIosArm64",
-        "linkReleaseFrameworkIosX64",
         "linkReleaseFrameworkIosSimulatorArm64"
     )
 
     doLast {
         val outputDir = layout.buildDirectory.dir("XCFrameworks").get().asFile
+        val xcframeworkPath = File(outputDir, "DataTaggingKMP.xcframework")
+
+        // Delete existing XCFramework if exists
+        if (xcframeworkPath.exists()) {
+            xcframeworkPath.deleteRecursively()
+        }
         outputDir.mkdirs()
 
         exec {
@@ -95,8 +99,7 @@ tasks.register("assembleXCFramework") {
                 "-create-xcframework",
                 "-framework", layout.buildDirectory.file("bin/iosArm64/releaseFramework/DataTaggingKMP.framework").get().asFile.absolutePath,
                 "-framework", layout.buildDirectory.file("bin/iosSimulatorArm64/releaseFramework/DataTaggingKMP.framework").get().asFile.absolutePath,
-                "-framework", layout.buildDirectory.file("bin/iosX64/releaseFramework/DataTaggingKMP.framework").get().asFile.absolutePath,
-                "-output", File(outputDir, "DataTaggingKMP.xcframework").absolutePath
+                "-output", xcframeworkPath.absolutePath
             )
         }
     }
