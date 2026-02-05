@@ -1,0 +1,101 @@
+name: Release XCFramework
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build XCFramework
+        run: ./gradlew :shared:assembleXCFramework
+
+      - name: Create zip
+        run: |
+          cd shared/build/XCFrameworks
+          zip -r DataTaggingKMP.xcframework.zip DataTaggingKMP.xcframework
+
+      - name: Compute checksum
+        id: checksum
+        run: |
+          CHECKSUM=$(swift package compute-checksum shared/build/XCFrameworks/DataTaggingKMP.xcframework.zip)
+          echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
+          echo "Checksum: $CHECKSUM"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: shared/build/XCFrameworks/DataTaggingKMP.xcframework.zip
+          body: |
+            ## Swift Package Manager
+
+            Add to your `Package.swift`:
+
+            ```swift
+            .binaryTarget(
+                name: "DataTaggingKMP",
+                url: "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/DataTaggingKMP.xcframework.zip",
+                checksum: "${{ steps.checksum.outputs.checksum }}"
+            )
+            ```
+
+            Or add via Xcode:
+            1. File > Add Package Dependencies
+            2. Enter: `https://github.com/${{ github.repository }}`
+            3. Select version: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Package.swift
+        run: |
+          VERSION=${{ github.ref_name }}
+          CHECKSUM=${{ steps.checksum.outputs.checksum }}
+          REPO=${{ github.repository }}
+
+          cat > Package.swift << EOF
+          // swift-tools-version:5.9
+          import PackageDescription
+
+          let package = Package(
+              name: "DataTaggingKMP",
+              platforms: [
+                  .iOS(.v13)
+              ],
+              products: [
+                  .library(
+                      name: "DataTaggingKMP",
+                      targets: ["DataTaggingKMP"]
+                  )
+              ],
+              targets: [
+                  .binaryTarget(
+                      name: "DataTaggingKMP",
+                      url: "https://github.com/${REPO}/releases/download/${VERSION}/DataTaggingKMP.xcframework.zip",
+                      checksum: "${CHECKSUM}"
+                  )
+              ]
+          )
+          EOF
+
+      - name: Commit updated Package.swift
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Package.swift
+          git commit -m "Update Package.swift for release ${{ github.ref_name }}" || echo "No changes to commit"
+          git push origin HEAD:main
