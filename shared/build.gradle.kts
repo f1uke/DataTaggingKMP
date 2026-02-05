@@ -2,7 +2,11 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
 }
+
+group = "com.github.f1uke"
+version = "1.0.0"
 
 kotlin {
     // iOS targets
@@ -57,6 +61,16 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+// Publishing configuration for JitPack
+afterEvaluate {
+    publishing {
+        publications {
+            // KMP plugin auto-generates publications for each target
+            // JitPack will use these automatically
+        }
     }
 }
 
