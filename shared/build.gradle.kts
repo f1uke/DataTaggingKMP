@@ -23,6 +23,7 @@ kotlin {
 
     // Android target
     androidTarget {
+        publishLibraryVariants("release", "debug")
         compilations.all {
             kotlinOptions {
                 jvmTarget = "17"
