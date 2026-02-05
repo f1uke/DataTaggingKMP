@@ -98,7 +98,8 @@ class DataTaggingManager(
 
             // Build additional params with user agent and exId
             val actualParams = params?.toMutableMap() ?: mutableMapOf()
-            actualParams["user_agent"] = config.userAgent
+            // Replace spaces with %20 to avoid + encoding in URL
+            actualParams["user_agent"] = config.userAgent.replace(" ", "%20")
             exId?.let { actualParams["ex_id"] = it }
 
             val paramsJson = json.encodeToString(actualParams)
