@@ -164,11 +164,11 @@ class DataTaggingManager(
 
     private fun getOrCreateClientId(): String {
         val existingId = storage.getClientId()
-        if (existingId != null && existingId.length == 15) {
+        if (existingId != null) {
             return existingId
         }
 
-        // Generate new client ID: 7 random chars + 10-char timestamp
+        // Generate new client ID: 7 random chars + 8-char timestamp (yyyyMMdd) = 15 total
         val randomPart = generateRandomString(7)
         val timestampPart = formatTimestamp(currentTimeMillis())
         val clientId = randomPart + timestampPart
@@ -185,21 +185,17 @@ class DataTaggingManager(
     }
 
     private fun formatTimestamp(millis: Long): String {
-        // Format: yyMMddHHmm (10 characters)
+        // Format: yyyyMMdd (8 characters)
         // This is a simplified version - platform implementations may provide better formatting
         val seconds = millis / 1000
-        val minutes = (seconds / 60) % 60
-        val hours = (seconds / 3600) % 24
         val days = ((seconds / 86400) % 31) + 1
         val months = ((seconds / 2629746) % 12) + 1
         val years = (seconds / 31556952) + 1970
 
         return buildString {
-            append((years % 100).toString().padStart(2, '0'))
+            append(years.toString().padStart(4, '0'))
             append(months.toString().padStart(2, '0'))
             append(days.toString().padStart(2, '0'))
-            append(hours.toString().padStart(2, '0'))
-            append(minutes.toString().padStart(2, '0'))
         }
     }
 }
