@@ -121,15 +121,18 @@ class DataTaggingManager(
                 "d" to getPlatformName()
             )
 
-            // Build URL manually to use %20 for spaces instead of +
-            // Server doesn't decode + back to space, so we need to use %20
-            val queryString = queryParams.entries.joinToString("&") { (key, value) ->
-                "${key.encodeURLParameter()}=${value.encodeURLParameter().replace("+", "%20")}"
-            }
-            val fullUrl = "${config.baseUrl}?$queryString"
-
+            // Use encodedParameters to set pre-encoded query params
+            // This prevents Ktor from re-encoding (server doesn't decode + as space)
             try {
-                httpClient.get(fullUrl)
+                httpClient.get(config.baseUrl) {
+                    url {
+                        encodedParameters.apply {
+                            queryParams.forEach { (key, value) ->
+                                append(key.encodeURLParameter(), value.encodeURLParameter())
+                            }
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 // Fire and forget - ignore errors
             }
