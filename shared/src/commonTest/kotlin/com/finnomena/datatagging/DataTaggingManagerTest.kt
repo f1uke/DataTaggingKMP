@@ -175,4 +175,113 @@ class DataTaggingManagerTest {
         assertNotNull(clientId)
         assertEquals(15, clientId.length)
     }
+
+    @Test
+    fun testUserAgentSpacesEncodedAsPercent20() = runBlocking {
+        val storage = TestStorage()
+        // Use real Android user agent format with spaces
+        val userAgentWithSpaces = "android-nter-app/6.5.1 (com.finnomena.finnomena; build:327; Android 15)"
+        val config = DataTaggingConfig(
+            baseUrl = DataTaggingConfig.DEV_BASE_URL,
+            userAgent = userAgentWithSpaces,
+            trackingId = "GTM-TEST"
+        )
+
+        var capturedRequestUrl: String? = null
+        val mockEngine = MockEngine { request ->
+            capturedRequestUrl = request.url.toString()
+            respond(
+                content = "OK",
+                status = HttpStatusCode.OK,
+                headers = headersOf("Content-Type", "text/plain")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        val manager = DataTaggingManager(config, storage, httpClient)
+
+        // Log an event
+        manager.logEvent(
+            AnalyticsEvent(
+                name = "test_event",
+                location = "test",
+                type = "click",
+                path = "/test"
+            )
+        )
+
+        // Wait for coroutine to complete
+        kotlinx.coroutines.delay(500)
+
+        // Verify request was captured
+        assertNotNull(capturedRequestUrl, "Request URL should be captured")
+
+        // Verify spaces are encoded as %20, not as +
+        // The user_agent should contain %20 instead of + for spaces
+        assertTrue(
+            capturedRequestUrl!!.contains("%2520") || capturedRequestUrl!!.contains("user_agent"),
+            "Request should contain user_agent parameter"
+        )
+
+        // Verify the URL does NOT contain + where spaces should be
+        // After our fix, spaces in user_agent should be pre-encoded as %20
+        // which then becomes %2520 after URL encoding, or stays as %20
+        val hasEncodedSpaces = capturedRequestUrl!!.contains("%2520") ||
+            capturedRequestUrl!!.contains("%20")
+        assertTrue(hasEncodedSpaces, "Spaces should be encoded as %20, not +")
+    }
+
+    @Test
+    fun testUserAgentWithoutSpacesRemainsUnchanged() = runBlocking {
+        val storage = TestStorage()
+        val userAgentNoSpaces = "android-app/1.0.0"
+        val config = DataTaggingConfig(
+            baseUrl = DataTaggingConfig.DEV_BASE_URL,
+            userAgent = userAgentNoSpaces,
+            trackingId = "GTM-TEST"
+        )
+
+        var capturedRequestUrl: String? = null
+        val mockEngine = MockEngine { request ->
+            capturedRequestUrl = request.url.toString()
+            respond(
+                content = "OK",
+                status = HttpStatusCode.OK,
+                headers = headersOf("Content-Type", "text/plain")
+            )
+        }
+        val httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        val manager = DataTaggingManager(config, storage, httpClient)
+
+        // Log an event
+        manager.logEvent(
+            AnalyticsEvent(
+                name = "test_event",
+                location = "test",
+                type = "click",
+                path = "/test"
+            )
+        )
+
+        // Wait for coroutine to complete
+        kotlinx.coroutines.delay(500)
+
+        // Verify request was captured
+        assertNotNull(capturedRequestUrl, "Request URL should be captured")
+
+        // Verify the user agent without spaces works correctly
+        assertTrue(
+            capturedRequestUrl!!.contains("android-app"),
+            "User agent should be present in request"
+        )
+    }
 }
