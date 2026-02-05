@@ -220,19 +220,24 @@ class DataTaggingManagerTest {
         // Verify request was captured
         assertNotNull(capturedRequestUrl, "Request URL should be captured")
 
-        // Verify spaces are encoded as %20, not as +
-        // The user_agent should contain %20 instead of + for spaces
+        // Verify URL contains %20 for spaces (not +)
         assertTrue(
-            capturedRequestUrl!!.contains("%2520") || capturedRequestUrl!!.contains("user_agent"),
-            "Request should contain user_agent parameter"
+            capturedRequestUrl!!.contains("%20"),
+            "Spaces should be encoded as %20"
         )
 
-        // Verify the URL does NOT contain + where spaces should be
-        // After our fix, spaces in user_agent should be pre-encoded as %20
-        // which then becomes %2520 after URL encoding, or stays as %20
-        val hasEncodedSpaces = capturedRequestUrl!!.contains("%2520") ||
-            capturedRequestUrl!!.contains("%20")
-        assertTrue(hasEncodedSpaces, "Spaces should be encoded as %20, not +")
+        // Verify URL does NOT contain + for spaces in user_agent
+        // The p parameter contains JSON with user_agent, spaces should be %20 not +
+        val pParamStart = capturedRequestUrl!!.indexOf("p=")
+        if (pParamStart != -1) {
+            val pParamEnd = capturedRequestUrl!!.indexOf("&", pParamStart).let { if (it == -1) capturedRequestUrl!!.length else it }
+            val pParamValue = capturedRequestUrl!!.substring(pParamStart, pParamEnd)
+            // In the p parameter, spaces in user_agent should be encoded as %20, not +
+            assertTrue(
+                !pParamValue.contains("+") || pParamValue.contains("%20"),
+                "Spaces in p parameter should be %20, not +"
+            )
+        }
     }
 
     @Test
