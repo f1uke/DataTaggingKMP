@@ -9,7 +9,7 @@ import com.finnomena.datatagging.platform.getPlatformName
 import com.finnomena.datatagging.platform.getUUIDTimestamp
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
+import io.ktor.http.encodeURLParameter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -98,8 +98,7 @@ class DataTaggingManager(
 
             // Build additional params with user agent and exId
             val actualParams = params?.toMutableMap() ?: mutableMapOf()
-            // Replace spaces with %20 to avoid + encoding in URL
-            actualParams["user_agent"] = config.userAgent.replace(" ", "%20")
+            actualParams["user_agent"] = config.userAgent
             exId?.let { actualParams["ex_id"] = it }
 
             val paramsJson = json.encodeToString(actualParams)
@@ -122,12 +121,15 @@ class DataTaggingManager(
                 "d" to getPlatformName()
             )
 
+            // Build URL manually to use %20 for spaces instead of +
+            // Server doesn't decode + back to space, so we need to use %20
+            val queryString = queryParams.entries.joinToString("&") { (key, value) ->
+                "${key.encodeURLParameter()}=${value.encodeURLParameter().replace("+", "%20")}"
+            }
+            val fullUrl = "${config.baseUrl}?$queryString"
+
             try {
-                httpClient.get(config.baseUrl) {
-                    queryParams.forEach { (key, value) ->
-                        parameter(key, value)
-                    }
-                }
+                httpClient.get(fullUrl)
             } catch (e: Exception) {
                 // Fire and forget - ignore errors
             }
