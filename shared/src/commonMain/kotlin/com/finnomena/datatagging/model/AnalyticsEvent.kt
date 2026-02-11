@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AnalyticsEvent(
     val name: String,
-    val location: String,
+    val location: String? = null,
     val type: String = "click",
     val path: String,
     val params: Map<String, String?>? = null
