@@ -53,7 +53,7 @@ class DataTaggingManager(
     /**
      * Log a screen view event
      */
-    fun logScreenView(path: String, params: Map<String, String>? = null) {
+    fun logScreenView(path: String, params: Map<String, String?>? = null) {
         scope.launch {
             sendEvent(
                 eventAction = "page_view",
@@ -87,7 +87,7 @@ class DataTaggingManager(
         eventLocation: String,
         eventType: String,
         path: String,
-        params: Map<String, String>?
+        params: Map<String, String?>?
     ) {
         mutex.withLock {
             val sessionUUID = refreshSessionIfNeeded()

@@ -11,5 +11,5 @@ data class AnalyticsEvent(
     val location: String,
     val type: String = "click",
     val path: String,
-    val params: Map<String, String>? = null
+    val params: Map<String, String?>? = null
 )
