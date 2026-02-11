@@ -57,7 +57,7 @@ class DataTaggingManager(
         scope.launch {
             sendEvent(
                 eventAction = "page_view",
-                eventLocation = "",
+                eventLocation = null,
                 eventType = "page",
                 path = path,
                 params = params
@@ -84,7 +84,7 @@ class DataTaggingManager(
 
     private suspend fun sendEvent(
         eventAction: String,
-        eventLocation: String,
+        eventLocation: String?,
         eventType: String,
         path: String,
         params: Map<String, String?>?
