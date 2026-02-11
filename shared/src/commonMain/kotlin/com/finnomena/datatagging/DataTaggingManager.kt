@@ -104,22 +104,22 @@ class DataTaggingManager(
             val paramsJson = json.encodeToString(actualParams)
 
             // Build query parameters
-            val queryParams = mapOf(
-                "v" to "1",
-                "t" to "event",
-                "tid" to config.trackingId,
-                "cid" to clientId,
-                "ea" to eventAction,
-                "l" to eventLocation,
-                "u.fss" to sessionUUID,
-                "u.f" to clientId,
-                "u.e" to brazeId,
-                "u.i" to userId,
-                "p" to paramsJson,
-                "ph" to path,
-                "et" to eventType,
-                "d" to getPlatformName()
-            )
+            val queryParams = buildMap {
+                put("v", "1")
+                put("t", "event")
+                put("tid", config.trackingId)
+                put("cid", clientId)
+                put("ea", eventAction)
+                eventLocation?.let { put("l", it) }
+                put("u.fss", sessionUUID)
+                put("u.f", clientId)
+                put("u.e", brazeId)
+                put("u.i", userId)
+                put("p", paramsJson)
+                put("ph", path)
+                put("et", eventType)
+                put("d", getPlatformName())
+            }
 
             // Use encodedParameters to set pre-encoded query params
             // This prevents Ktor from re-encoding (server doesn't decode + as space)
