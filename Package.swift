@@ -15,8 +15,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "DataTaggingKMP",
-            url: "https://github.com/f1uke/DataTaggingKMP/releases/download/1.0.5/DataTaggingKMP.xcframework.zip",
-            checksum: "bd03f1b1369e58b68b8d866b3b08efaca51d958a69d77b0a522922b956862571"
+            url: "https://github.com/f1uke/DataTaggingKMP/releases/download/1.0.6/DataTaggingKMP.xcframework.zip",
+            checksum: "0d1f717d0080ddca5ddfef2f630904984877f0917b9e484bcdb66bfb0f3924a5"
         )
     ]
 )
