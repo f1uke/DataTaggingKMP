@@ -111,3 +111,8 @@ jobs:
           git add Package.swift
           git commit -m "Update Package.swift for release ${{ github.ref_name }}" || echo "No changes to commit"
           git push origin HEAD:main
+
+      - name: Move tag to include Package.swift update
+        run: |
+          git tag -f ${{ github.ref_name }}
+          git push origin ${{ github.ref_name }} --force
